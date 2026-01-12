@@ -1,8 +1,11 @@
 // src/main.jsx
-import React from "react";
+import React, { useState } from "react";
 import ReactDOMClient from "react-dom/client";
 import MyApp from "./MyApp";
 import "./main.css";
+
+// src/MyApp.jsx (empty state)
+const [characters, setCharacters] = useState([]);
 
 // Create the container
 const container = document.getElementById("root");
