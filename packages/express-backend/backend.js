@@ -42,19 +42,34 @@ const findUserByName = (name) => {
   );
 };
 
+const findUserById = (id) =>
+  users["users_list"].find((user) => user["id"] === id);
+
+const findUserByNameJob = (name, job) => {
+  return users["users_list"].filter(
+    (user) => user["name"] === name && user["job"] === job
+  );
+};
+
 app.get("/users", (req, res) => {
+  console.log("Made it here")
   const name = req.query.name;
-  if (name != undefined) {
+  const job = req.query.job;
+  if (name != undefined && job != undefined) {
+    let result = findUserByNameJob(name, job);
+    result = { users_list: result };
+    res.send(result);
+  }
+  else if (name != undefined) {
     let result = findUserByName(name);
     result = { users_list: result };
     res.send(result);
-  } else {
+  }
+  else {
     res.send(users);
   }
 });
 
-const findUserById = (id) =>
-  users["users_list"].find((user) => user["id"] === id);
 
 app.get("/users/:id", (req, res) => {
   const id = req.params["id"]; //or req.params.id
@@ -66,13 +81,37 @@ app.get("/users/:id", (req, res) => {
   }
 });
 
-app.get("/users", (req, res) => {
-  res.send(users);
+app.get("/", (req, res) => {
+  res.send("Hello World! It's a me, Chris!");
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World! Adventure!");
+const addUser = (user) => {
+  users["users_list"].push(user);
+  return user;
+};
+
+app.post("/users", (req, res) => {
+  const userToAdd = req.body;
+  addUser(userToAdd);
+  res.send();
 });
+
+app.delete("/users/:id", (req, res) => {
+  console.log("Made it to the function")
+  const id = req.params["id"]; //or req.params.id
+  let result = findUserById(id);
+  console.log("Has a result")
+  if (result === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    console.log("Made it to the update")
+    users["users_list"] = users["users_list"].filter(
+      (user) => user["id"] !== id
+    );
+    res.status(200);
+    res.send("User deleted");
+  }
+}); 
 
 app.listen(port, () => {
   console.log(
