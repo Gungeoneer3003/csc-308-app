@@ -13,32 +13,56 @@ function MyApp() {
 
     useEffect(() => {
         fetchUsers()
-	        .then((res) => res.json())
-	        .then((json) => setCharacters(json["users_list"]))
-	        .catch((error) => { console.log(error); });
-    }, [] );
+            .then((res) => res.json())
+            .then((json) => setCharacters(json["users_list"]))
+            .catch((error) => { console.log(error); });
+    }, []);
 
     function postUser(person) {
-        const promise = fetch("Http://localhost:8000/users", {
+        const promise = fetch("http://localhost:8000/users", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        body: JSON.stringify(person),
-        });
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(person),
+        })
 
         return promise;
     }
-    
-    function updateList(person) { 
+
+    function updateList(person) {
         postUser(person)
-        .then(() => setCharacters([...characters, person]))
-        .catch((error) => {
-            console.log(error);
-        })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw new Error(`Status: ${res.status}`);
+                }
+                return res.json(); // use response body
+            })
+            .then(addedUser => {
+                setCharacters([...characters, addedUser]);
+            })
+            .catch(err => {
+                console.error("Update failed:", err);
+            });
     }
 
     function removeOneCharacter(index) {
+        const id = characters[index].id;
+        const link = "http://localhost:8000/users" + "/" + id;
+
+        const promise = fetch(link, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+        }).then(res => {
+            if (res.status === 404) {
+                throw new Error(`Status: ${res.status} (Not Found)`);
+            }
+            if (res.status !== 204) {
+                throw new Error(`Status: ${res.status}`);
+            }
+        }).catch(err => {
+            console.error("Update failed:", err);
+            return;
+        });
+
         const updated = characters.filter((character, i) => {
             return i !== index;
         });

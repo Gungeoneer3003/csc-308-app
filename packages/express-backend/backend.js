@@ -92,9 +92,10 @@ const addUser = (user) => {
 };
 
 app.post("/users", (req, res) => {
-  const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+  const id = Math.random().toString(36).slice(2, 8); //Found online (makes 6 random char string)
+  const userToAdd = {...req.body, id};
+  const addedUser = addUser(userToAdd);
+  res.status(201).json(addedUser);
 });
 
 app.delete("/users/:id", (req, res) => {
@@ -106,7 +107,7 @@ app.delete("/users/:id", (req, res) => {
     users["users_list"] = users["users_list"].filter(
       (user) => user["id"] !== id
     );
-    res.status(200);
+    res.status(204);
     res.send("User deleted");
   }
 }); 
