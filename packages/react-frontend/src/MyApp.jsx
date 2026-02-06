@@ -34,18 +34,17 @@ function MyApp() {
                 if (res.status !== 201) {
                     throw new Error(`Status: ${res.status}`);
                 }
-                return res.json(); // use response body
+                return fetchUsers(); // use response body
             })
-            .then(addedUser => {
-                setCharacters([...characters, addedUser]);
-            })
+            .then(res => res.json())
+            .then(json => setCharacters(json.users_list))
             .catch(err => {
                 console.error("Update failed:", err);
             });
     }
 
     function removeOneCharacter(index) {
-        const id = characters[index].id;
+        const id = characters[index]._id;
         const link = "http://localhost:8000/users" + "/" + id;
 
         const promise = fetch(link, {
